@@ -156,7 +156,18 @@ if __name__ == "__main__":
         mean, std = process_data(args.data, args.target)
 
         print("#### Training")
-        trainModel()
+        # trainModel()
+        global model, batchSize, reg, learningRate, lossClass
+        iterations_count = 128*500//batchSize
+        lr_decay_iter = iterations_count//8
+        reg_zero = 2*iterations_count//10
+
+        for i in range(5):
+                train(model,lossClass,lr_decay_iter,10, batchSize ,learningRate, reg)
+                learningRate /= 10
+                reg/=10
+                print(trainAcc())
+ 
 
 
         print("#### Saving the model")
