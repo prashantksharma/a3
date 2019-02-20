@@ -30,6 +30,7 @@ labels = None
 reg = 1e-3 
 batchSize = 64
 dataSize = 0
+model = None
 
 def disp(x,shape=False):
     print("")
