@@ -25,8 +25,12 @@ def predict(model, test_data):
     yhat = model.forward(test_data)
     yhat = yhat.max(dim = 1)[1]
 
+    print("# prediction are:")
+    print(yhat)
+    np_pred = yhat.numpy()
+    np.savetxt("pred.csv", np.dstack((np.arange(0, np_pred.size),np_pred))[0],"%d,%d",header="id,label")
     # saving the predictions
-    file = open("predictions_yhat.bin", 'wb')
+    file = open("predictions_yhat_2.bin", 'wb')
     torch.save(yhat, file)
     file.close()
 

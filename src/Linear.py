@@ -27,9 +27,9 @@ class Linear():
 		self.momentumWeight = momentum*self.momentumWeight + (1- momentum)*self.gradWeight
 		self.momentumBias = momentum*self.momentumBias + (1- momentum)*self.gradBias
 		return self.gradInput
-	def __str__(self):
-		string = "Linear Layer with input dimensions %d and output dimensions %d"%(self.input_dim,self.output_dim)
-		return 	string
+	# def __str__(self):
+	# 	string = "Linear Layer with input dimensions %d and output dimensions %d"%(self.input_dim,self.output_dim)
+	# 	return 	string
 	# def print_param(self):
 	# 	print("Weight :")
 	# 	print(self.weight)
