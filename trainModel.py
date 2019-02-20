@@ -137,6 +137,7 @@ def saveModel(fileToSave):
 
 
 if __name__ == "__main__":
+        global model, batchSize, reg, learningRate, lossClass
         parser = argparse.ArgumentParser()
         parser.add_argument("-modelName", help="input model name")
         parser.add_argument("-data",help="path to data.bin")
@@ -158,7 +159,7 @@ if __name__ == "__main__":
 
         print("#### Training")
         # trainModel()
-        global model, batchSize, reg, learningRate, lossClass
+        
         iterations_count = 128*500//batchSize
         lr_decay_iter = iterations_count//8
         reg_zero = 2*iterations_count//10
