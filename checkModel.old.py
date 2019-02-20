@@ -1,9 +1,17 @@
 import sys
 sys.path.append('src')
-from imports import *
+# from imports import *
+from Model import *
+from Criterion import *
+from Linear import *
+from ReLU import *
+from Conv2D import *
+import argparse
+import os
+import numpy as np
 import torch
 import torchfile as trf
-import argparse
+# import argparse
 
 def create_model(make_model_file_path):
 	_f = open(make_model_file_path, 'r')
@@ -26,29 +34,41 @@ def create_model(make_model_file_path):
 		"relu": model.addLayer(ReLU()) }[test_data[0]]
 
 	i = 0
-	for layer in model.Layers:
-		if layer.canTrain:
-			layer.weight = torch.from_numpy(trf.load(weight_p)[i]).t()
-			layer.bias = torch.from_numpy(trf.load(bias_p)[i])
+	layers = model.Layers
+	for l in layers:
+		status = l.canTrain
+		if status:
+			l.weight = torch.from_numpy(trf.load(weight_p)[i]).t()
+			l.bias = torch.from_numpy(trf.load(bias_p)[i])
 			i += 1
 
 	return model
 
-def read_ip_ip_grad(ip_path, ip_grad_path):
-    input = trf.load(ip_path)
-    input = torch.from_numpy(input)
-    print("### ip_grad",ip_grad_path)
-    ip_grad = torch.from_numpy(trf.load(ip_grad_path))
+# def readInput(input_path):
+# 	input = tf.load(input_path)
+# 	input = torch.from_numpy(input)
+# 	return input.view(input.size()[0], -1)
 
-    
-    return input.view(input.size()[0], -1), ip_grad
+# def readInputGrad(gradInput_path):
+# 	gradInput = tf.load(gradInput_path)
+# 	return torch.from_numpy(gradInput)
+
+def read_ip_ip_grad(ip_path, ip_grad_path):
+	ip = trf.load(ip_path)
+	ip_grad = trf.load(ip_grad_path)
+
+	ip = torch.from_numpy(ip)
+	ip_grad = torch.from_numpy(ip_grad)
+
+	return ip, ip_grad
 
 def model_pass(model):
 	w_grads = []
 	b_grads = []
-	layers = model.Layers
+	layers = model.layers
 	for l in layers:
-		if l.canTrain:
+		status = l.canTrain
+		if status:
 			w_grads.append(l.gradWeight.t())
 			b_grads.append(l.gradBias)
 
@@ -67,11 +87,11 @@ if __name__ == "__main__":
 		parser = argparse.ArgumentParser()
 		parser.add_argument("-config", help="model config")
 		parser.add_argument("-i",help="input")
-		parser.add_argument("-og",help="grad output")
+		parser.add_argument("-ig",help="inputGrad")
 		parser.add_argument("-o",help="output")
 		parser.add_argument("-ow",help="grad weight")
 		parser.add_argument("-ob",help="grad bias")
-		parser.add_argument("-ig",help="grad input")
+		parser.add_argument("-og",help="grad output")
 
 
 		args = parser.parse_args()
@@ -85,16 +105,22 @@ if __name__ == "__main__":
 		print("## make model")
 		model = create_model(args.config)
 
-		input, ip_grad = read_ip_ip_grad(args.i, args.ig)
-		output = model.forward(input)
-		save(output, args.o)
+		ip, ip_grad = read_ip_ip_grad(args.i, args.ig)
 
 		model.clearGradParam()
-		model.backward(input, ip_grad)
+		model.backward(ip, ip_grad)
 
+
+		# weightGrads = []
+		# biasGrads = []
+		# for layer in model.Layers:
+		# 	if layer.isTrainable:
+		# 		weightGrads.append(layer.gradWeight.t())
+		# 		biasGrads.append(layer.gradBias)
 		w_grads, b_grads = model_pass(model)
 		save(w_grads,args.ow)
 		save(b_grads, args.ob)
+
 
 		gradOutput = model.Layers[0].gradInput
 		save(gradOutput, args.ig)

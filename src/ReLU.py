@@ -5,27 +5,21 @@ import math
 
 class ReLU():
     def __init__(self):
-        # super().__init__()
-        self.isTrainable = False
-        
+        self.canTrain = False
+        self.ip = None
+        self.op = None
+        self.ip_grad = None
 
-    def forward(self, input):
-        input[input < 0] = 0
-        self.output = input
-        return self.output
 
-    def backward(self, input, gradOutput):
-        # mask = input > 0
-        # dx = gradOutput* (mask.type(torch.DoubleTensor))
-        # self.gradInput = dx
-        # self.gradInput
-        self.gradInput = gradOutput.clone()
-        self.gradInput[self.output==0] = 0
-        return self.gradInput
+    def forward(self, ip):
 
-    def __str__(self):
-        return "### ReLU"
+        self.op = ip.clone()
+        self.op[self.op < 0] = 0
+        return self.op
 
-    def clear_grad(self):
-        self.gradInput = 0
-        return
+    def backward(self, ip, op_grad):
+
+        self.ip_grad = op_grad.clone()
+        self.ip_grad[self.op==0] = 0
+
+        return self.ip_grad

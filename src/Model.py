@@ -42,13 +42,14 @@ class Model():
         for i in range(ub, lb, decr):
             print("##Layer %d"%(i))
             print(self.Layers[i])
-
-            if(self.Layers[i].isTrainale):
-                self.params(self.Layers[i])
+            status = self.Layers[i].canTrain   
+            if(status):
+                # self.params(self.Layers[i])
+                print("## Weight ", self.Layers[i].weight)
+                print("## bias ", self.Layers[i].bias)
 
     def clearGradParam(self):
         for l in self.Layers:
-            # l.clear_grad()
             l.gradInput = 0
             l.gradWeight = 0	
             l.gradBias = 0
@@ -57,12 +58,10 @@ class Model():
         print("## Weight ", Layer.weight)
         print("## bias ", Layer.bias)
     
-    # def saveMeanVariance(self, mean, variance):
-    #     self.dataMean = mean
-    #     self.dataVariance = variance
     def regularization_loss(self,regularization):
         reg = 0
         for i in self.Layers:
-            if (i.isTrainable):
-                reg += regularization * i.weights_norm()
+            status = i.canTrain
+            if (status):
+                reg += regularization * i.norm_weights()
         return reg			

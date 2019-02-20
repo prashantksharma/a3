@@ -10,6 +10,7 @@ from ReLU import *
 from Conv2D import *
 import argparse
 import os
+import numpy as np
 
 import src.ReLU as rl 
 
@@ -19,17 +20,21 @@ import importlib
 
 importlib.reload(rl)
 
-batchSize = 128
-plotIndex = 0
-losses = []
-plotIndices = []
-lossClass = Criterion()
-learningRate = 1e-6
+
+learningRate = 1e-3
 data = None
 labels = None
 reg = 1e-3 
 batchSize = 64
 dataSize = 0
+# momemtum params
+beta1 = 0.9
+beta2 = 0.999
+eps = 1e-8
+
+configW = None
+configB = None
+
 
 def disp(x,shape=False):
     print("")
@@ -78,32 +83,55 @@ def process_data(path_data, path_labels):
         return mean, std
 
 
-def train(model,lossClass,iterations, whenToPrint, batchSize, learningRate, par_regularization):
-	global dataSize, plotIndex, losses, plotIndices, labels, data
-	dataSize = data.size()[0]
-	for i in range(iterations):
-		indices = (torch.randperm(dataSize)[:batchSize]).numpy()
-		currentData = data[indices, :]
-		currentLabels = labels.view(dataSize, 1)[indices, :]
-		yPred = model.forward(currentData)
-		lossGrad, loss = lossClass.backward(yPred, currentLabels)
-		if i%whenToPrint == 0:
-			reg_loss = model.regularization_loss(par_regularization)
-			print("Iteration - %d : loss = %.4f regularization loss = %.4f , total loss = %.4f" % (i, loss,reg_loss,loss+reg_loss))
-			#losses.append(loss)
-			#plotIndices.append(plotIndex)
 
-		model.clearGradParam()
-		model.backward(currentData, lossGrad)
-		for layer in model.Layers:
-			if layer.isTrainable:
-				layer.weight -= learningRate*((1-momentum)*layer.gradWeight + momentum*layer.momentumWeight) + par_regularization*layer.weight
-				layer.bias -= learningRate*((1-momentum)*layer.gradBias + momentum*layer.momentumBias) + par_regularization*layer.bias
-				#layer.weight -= (learningRate*layer.gradWeight + par_regularization*layer.weight)
-				#layer.bias -= (learningRate*layer.gradBias + par_regularization*layer.bias)
-		if i%(whenToPrint*10) == 0:
-			print(accuracy())	
-		plotIndex += 1
+def train(model,lossClass,iterations, whenToPrint, batchSize, learningRate, par_regularization):
+        # global dataSize, plotIndex, losses, plotIndices, labels, data, configW, configB, beta1, beta2, eps
+        global labels
+        dataSize = data.size()[0]
+
+        for i in range(1,iterations):
+                indices = (torch.randperm(dataSize)[:batchSize]).numpy()
+                currentData = data[indices, :]
+                currentLabels = labels.view(dataSize, 1)[indices, :]
+                yPred = model.forward(currentData)
+                lossGrad= lossClass.backward(yPred, currentLabels)
+                loss = lossClass.forward(yPred, currentLabels)
+                if i%whenToPrint == 0:
+                        reg_loss = model.regularization_loss(par_regularization)
+                        print("Iteration (%d / %d) : loss = %.5f reg loss = %.5f , tot loss = %.5f" % (i, iterations,loss,reg_loss,loss+reg_loss))
+                        #losses.append(loss)
+                        #plotIndices.append(plotIndex)
+
+                model.clearGradParam()
+                model.backward(currentData, lossGrad)
+                for layer in model.Layers:
+                        status = layer.canTrain
+                        if status:
+                                w = layer.weight
+                                dw = layer.gradWeight
+                                b = layer.bias
+                                db = layer.gradBias
+
+                                #momentum update
+                                np_w = w.numpy()
+                                np_dw = dw.numpy()
+
+                                np_b = b.numpy()
+                                np_db = db.numpy()
+
+                                # print("========== Layer info=============")
+                                
+                                # print("### before w ", np_w.shape)
+                                # print("### before dw ", np_dw.shape)
+                                
+                                layer.weight, layer.configW = layer.momentum_update(np_w, np_dw, layer.configW)
+                                # print("### before  b ", np_b.shape)
+                                # print("### before db ", np_db.shape)
+                                layer.bias, layer.configB = layer.momentum_update(np_b, np_db, layer.configB)
+
+                if i%(whenToPrint*10) == 0:
+                        print(accuracy())	
+                # plotIndex += 1
 
 def accuracy():
         global model, data, label
@@ -112,19 +140,6 @@ def accuracy():
         acc = (yPred.max(dim=1)[1].type(torch.LongTensor) == labels.type(torch.LongTensor)).sum()/N
         print(acc)
         return acc
-
-# def trainModel():
-# 	global model, batchSize, reg, learningRate, lossClass
-# 	iterations_count = 128*500//batchSize
-# 	lr_decay_iter = iterations_count//8
-# 	reg_zero = 2*iterations_count//10
-
-# 	for i in range(5):
-# 		train(model,lossClass,lr_decay_iter,10, batchSize ,learningRate, reg)
-# 		learningRate /= 10
-# 		reg/=10
-# 		print(trainAcc())
-# 	return 
 
 def saveModel(fileToSave):
 	global model
@@ -151,19 +166,22 @@ if __name__ == "__main__":
         print("==========INIT Model========================")
         model = init_model()
 
-        print("Mode Initialised")
+        print("Model Initialised")
 
         mean, std = process_data(args.data, args.target)
 
         print("#### Training")
-        # trainModel()
-        # global batchSize, reg, learningRate, lossClass
-        iterations_count = 128*500//batchSize
-        lr_decay_iter = iterations_count//8
-        reg_zero = 2*iterations_count//10
+        
 
+        tot_itr = int(128*500/batchSize)
+        iter_epoch = int(tot_itr/8)
+        # reg_zero = int(2*tot_itr/10)
+        step_size = 10
+        print("# iter per epoch ", iter_epoch)
+
+        lossClass = Criterion()
         for i in range(5):
-                train(model,lossClass,lr_decay_iter,10, batchSize ,learningRate, reg)
+                train(model,lossClass,iter_epoch,step_size, batchSize ,learningRate, reg)
                 learningRate /= 10
                 reg/=10
                 print(accuracy())

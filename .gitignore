@@ -7,6 +7,11 @@ final.old/
 .ipynb_checkpoints/
 model001/
 standford-cs231n-2018/
+akhil/
+grad/
+model001/
+model002/
+model003/
 
 # files
 *.pt

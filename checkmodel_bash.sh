@@ -1,0 +1,1 @@
+python3 checkModel.py -config "./grad/modelConfig_1.txt" -i "./grad/input_sample_1.bin" -og "./grad/gradOutput_sample_1.bin" -o "./grad/output_sample_1.bin" -ow "./grad/gradW_sample_1.bin" -ob "./grad/gradB_sample_1.bin" -ig "./grad/gradCriterionInput_sample_1.bin"
