@@ -28,8 +28,8 @@ def create_model(make_model_file_path):
 	i = 0
 	for layer in model.Layers:
 		if layer.isTrainable:
-			layer.weight = torch.from_numpy(tf.load(weight_p)[i]).t()
-			layer.bias = torch.from_numpy(tf.load(bias_p)[i])
+			layer.weight = torch.from_numpy(trf.load(weight_p)[i]).t()
+			layer.bias = torch.from_numpy(trf.load(bias_p)[i])
 			i += 1
 
 	return model
