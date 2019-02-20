@@ -50,8 +50,8 @@ def init_model():
 
 def process_data(path_data, path_labels):
         global data, labels, sz
-        path_labels = "./data/labels.bin"
-        path_data = "./data/data.bin"
+        # path_labels = "./data/labels.bin"
+        # path_data = "./data/data.bin"
 
 
         # loading as numpy array
@@ -89,7 +89,7 @@ def train(model,lossClass,iterations, whenToPrint, batchSize, learningRate, par_
 		lossGrad, loss = lossClass.backward(yPred, currentLabels)
 		if i%whenToPrint == 0:
 			reg_loss = model.regularization_loss(par_regularization)
-			print("Iteration - %d : Training-Loss = %.4f Regularization-Loss = %.4f and Total-loss = %.4f"%(i, loss,reg_loss,loss+reg_loss))
+			print("Iteration - %d : loss = %.4f regularization loss = %.4f , total loss = %.4f" % (i, loss,reg_loss,loss+reg_loss))
 			#losses.append(loss)
 			#plotIndices.append(plotIndex)
 
@@ -102,10 +102,10 @@ def train(model,lossClass,iterations, whenToPrint, batchSize, learningRate, par_
 				#layer.weight -= (learningRate*layer.gradWeight + par_regularization*layer.weight)
 				#layer.bias -= (learningRate*layer.gradBias + par_regularization*layer.bias)
 		if i%(whenToPrint*10) == 0:
-			print(trainAcc())	
+			print(accuracy())	
 		plotIndex += 1
 
-def trainAcc():
+def accuracy():
         global model, data, label
         yPred = model.forward(data)
         N = data.size()[0]
@@ -113,18 +113,18 @@ def trainAcc():
         print(acc)
         return acc
 
-def trainModel():
-	global model, batchSize, reg, learningRate, lossClass
-	iterations_count = 128*500//batchSize
-	lr_decay_iter = iterations_count//8
-	reg_zero = 2*iterations_count//10
+# def trainModel():
+# 	global model, batchSize, reg, learningRate, lossClass
+# 	iterations_count = 128*500//batchSize
+# 	lr_decay_iter = iterations_count//8
+# 	reg_zero = 2*iterations_count//10
 
-	for i in range(5):
-		train(model,lossClass,lr_decay_iter,10, batchSize ,learningRate, reg)
-		learningRate /= 10
-		reg/=10
-		print(trainAcc())
-	return 
+# 	for i in range(5):
+# 		train(model,lossClass,lr_decay_iter,10, batchSize ,learningRate, reg)
+# 		learningRate /= 10
+# 		reg/=10
+# 		print(trainAcc())
+# 	return 
 
 def saveModel(fileToSave):
 	global model
@@ -166,7 +166,7 @@ if __name__ == "__main__":
                 train(model,lossClass,lr_decay_iter,10, batchSize ,learningRate, reg)
                 learningRate /= 10
                 reg/=10
-                print(trainAcc())
+                print(accuracy())
  
 
 
