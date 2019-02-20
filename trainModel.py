@@ -142,7 +142,7 @@ if __name__ == "__main__":
         parser.add_argument("-target",help="path to labels.bin")
 
         args = parser.parse_args()
-
+        
         print("==================input args===================")
         print(args.modelName)
         print(args.data)
@@ -150,6 +150,8 @@ if __name__ == "__main__":
 
         print("==========INIT Model========================")
         model = init_model()
+
+        print("Mode Initialised")
 
         mean, std = process_data(args.data, args.target)
 
