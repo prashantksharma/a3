@@ -30,7 +30,6 @@ labels = None
 reg = 1e-3 
 batchSize = 64
 dataSize = 0
-model = None
 
 def disp(x,shape=False):
     print("")
@@ -137,7 +136,6 @@ def saveModel(fileToSave):
 
 
 if __name__ == "__main__":
-        global model, batchSize, reg, learningRate, lossClass
         parser = argparse.ArgumentParser()
         parser.add_argument("-modelName", help="input model name")
         parser.add_argument("-data",help="path to data.bin")
@@ -158,17 +156,17 @@ if __name__ == "__main__":
         mean, std = process_data(args.data, args.target)
 
         print("#### Training")
-        # trainModel()
-        
-        iterations_count = 128*500//batchSize
-        lr_decay_iter = iterations_count//8
-        reg_zero = 2*iterations_count//10
+        trainModel()
+        # global model, batchSize, reg, learningRate, lossClass
+        # iterations_count = 128*500//batchSize
+        # lr_decay_iter = iterations_count//8
+        # reg_zero = 2*iterations_count//10
 
-        for i in range(5):
-                train(model,lossClass,lr_decay_iter,10, batchSize ,learningRate, reg)
-                learningRate /= 10
-                reg/=10
-                print(trainAcc())
+        # for i in range(5):
+        #         train(model,lossClass,lr_decay_iter,10, batchSize ,learningRate, reg)
+        #         learningRate /= 10
+        #         reg/=10
+        #         print(trainAcc())
  
 
 
