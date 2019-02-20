@@ -57,9 +57,9 @@ class Model():
         print("## Weight ", Layer.weight)
         print("## bias ", Layer.bias)
     
-    def saveMeanVariance(self, mean, variance):
-        self.dataMean = mean
-        self.dataVariance = variance
+    # def saveMeanVariance(self, mean, variance):
+    #     self.dataMean = mean
+    #     self.dataVariance = variance
     def regularization_loss(self,regularization):
         reg = 0
         for i in self.Layers:

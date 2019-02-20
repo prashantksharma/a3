@@ -1,0 +1,13 @@
+# folder
+CS763_Assignment_3-master/
+CS763-Assignments/
+data/
+Data/
+final/
+.ipynb_checkpoints/
+model001/
+standford-cs231n-2018/
+
+# files
+*.pt
+*.zip

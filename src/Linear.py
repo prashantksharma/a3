@@ -7,7 +7,7 @@ momentum = 0.8
 class Linear():
 	"""docstring for Linear"""
 	def __init__(self, input_dim,output_dim,initialization='He'):
-		super(Linear, self).__init__()
+		# super(Linear, self).__init__()
 		self.input_dim = input_dim
 		self.output_dim = output_dim 
 		self.weight = torch.randn(input_dim,output_dim).type(torch.DoubleTensor)*sqrt(2/(input_dim))

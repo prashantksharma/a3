@@ -5,7 +5,7 @@ import math
 
 class ReLU():
     def __init__(self):
-        super().__init__()
+        # super().__init__()
         self.isTrainable = False
         
 

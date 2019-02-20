@@ -42,10 +42,10 @@ def disp(x,shape=False):
 
 def init_model():
         model = Model()
-        model.addLayer(Linear(108*108, 900))
+        model.addLayer(Linear(108*108, 1000))
         model.addLayer(ReLU())
-        model.addLayer(Linear(900, 6))
-        model.addLayer(ReLU())
+        model.addLayer(Linear(1000, 6))
+        # model.addLayer(ReLU())
         return model
 
 def process_data(path_data, path_labels):
@@ -59,7 +59,7 @@ def process_data(path_data, path_labels):
         d = trf.load(path_data)
 
 
-        # converting numpy arrys into tensors
+        # converting numpy arrays into tensors
         _l = torch.from_numpy(l)
         _d = torch.from_numpy(d)
         _data = _d.contiguous().view(_d.size()[0], -1).type(torch.DoubleTensor)
